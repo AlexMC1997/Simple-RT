@@ -1,9 +1,12 @@
 use crate::linear;
 use crate::ray;
 
+pub const WHITE: linear::Vec3<f64> = linear::Vec3{x: 1.0, y: 1.0, z: 1.0};
 pub const RED: linear::Vec3<f64> = linear::Vec3{x: 1.0, y: 0.0, z: 0.0};
+pub const PURPLE: linear::Vec3<f64> = linear::Vec3{x: 1.0, y: 0.0, z: 1.0};
 pub const BLUE: linear::Vec3<f64> = linear::Vec3{x: 0.0, y: 0.0, z: 1.0};
 pub const GREEN: linear::Vec3<f64> = linear::Vec3{x: 0.0, y: 1.0, z: 0.0};
+pub const SKY: linear::Vec3<f64> = linear::Vec3{x: 0.0, y: 0.4, z: 0.8};
 pub trait SceneObject {
     fn intersect(&self, r: &ray::Ray) -> Intersection;
 }
@@ -21,8 +24,8 @@ pub struct Sphere {
     pub color: linear::Vec3<f64>,
 }
 
-pub struct Scene {
-    pub objects: Vec<Sphere>,
+pub struct Scene<'a> {
+    pub objects: Vec<&'a dyn SceneObject>,
 }
 
 impl SceneObject for Sphere {
