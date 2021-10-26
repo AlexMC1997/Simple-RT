@@ -3,7 +3,7 @@ use crate::scene;
 
 pub const BLANK: Lambert = Lambert {color: linear::Vec3 {x: 0.0, y: 0.0, z: 0.0}};
 pub const RED_TESTING: Lambert = Lambert { color: linear::Vec3 {x: 0.5, y: 0.2, z: 0.1}};
-pub const GREEN_TESTING: Lambert = Lambert { color: linear::Vec3 {x: 0.1, y: 0.5, z: 0.1} };
+pub const GREEN_TESTING: Lambert = Lambert { color: linear::Vec3 {x: 0.1, y: 0.5, z: 0.2} };
 pub const PURPLE_TESTING: Lambert = Lambert { color: linear::Vec3 {x: 0.5, y: 0.1, z: 0.5} };
 pub const WHITE_TESTING: Lambert = Lambert { color: linear::Vec3 {x: 0.5, y: 0.5, z: 0.5} };
 pub const MIRROR_TESTING: Specular = Specular { color: linear::Vec3 {x: 0.96, y: 0.98, z: 0.96} };

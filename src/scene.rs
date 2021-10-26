@@ -34,19 +34,18 @@ pub struct Scene<'a> {
 impl<'a> SceneObject for Sphere<'a> {
     fn intersect(&self, r: &ray::Ray) -> Intersection {
         let mut result = Intersection {t: -1.0, pos: linear::Vec3::new(), norm: linear::Vec3::new(), mat: &material::BLANK};
-        let a = &r.traj * &r.traj;
-        let b = 2.0 * &(&r.traj * &(&r.origin - &self.pos));  
-        let c = &(&r.origin - &self.pos)*&(&r.origin - &self.pos) - self.rad.powi(2);
-        let disc = b.powi(2) - 4.0*a*c;
+        let pc = &r.origin - &self.pos;
+        let b = &r.traj * &pc;  
+        let c = &pc*&pc - self.rad.powi(2);
+        let disc = b.powi(2) - c;
         if disc >= 0.0 {
-            let t1: f64 = (-b + (disc).sqrt())/(2.0*a);
-            let t2: f64 = (-b - (disc).sqrt())/(2.0*a);
-            if t1 >= t2 {
-                result.t = t2;
-                result.pos = &r.origin + &(t2 * &r.traj);
-            } else if t2 > t1 {
-                result.t = t1;
-                result.pos = &r.origin + &(t1 * &r.traj);
+            let sdisc = (disc).sqrt();
+            if sdisc >= 0.0 {
+                result.t = -b - sdisc;
+                result.pos = &r.origin + &(result.t * &r.traj);
+            } else {
+                result.t = -b + sdisc;
+                result.pos = &r.origin + &(result.t * &r.traj);
             }
     
             result.norm = (&result.pos - &self.pos).normalize();

@@ -16,16 +16,11 @@ pub struct Camera<'a> {
     pub ratio: f64,
     pub fov: f64,
     pub scene: scene::Scene<'a>,
+    pub film: Vec<linear::Vec3<f64>>
 }
 
 impl<'a> Camera<'a> {
-    fn write_color(color: &linear::Vec3<f64>) {
-        let r = (num::abs(color.x).clamp(0.0, 1.0) * 255.0) as u8;
-        let g = (num::abs(color.y).clamp(0.0, 1.0) * 255.0) as u8;
-        let b = (num::abs(color.z).clamp(0.0, 1.0) * 255.0) as u8;
-        print!("{:0>3} {:0>3} {:0>3}   ", r, g, b);
-    }
-    pub fn shoot(&mut self, width: u32, height: u32, samples: u8) {
+    pub fn shoot(&mut self, width: u32, height: u32, samples: u16) {
         self.ratio = (width as f64) / (height as f64);
         // let test = linear::Vec3 {x: 1.0, y: 0.0, z: 0.0};
         let vfov = self.fov / self.ratio;
@@ -47,13 +42,13 @@ impl<'a> Camera<'a> {
                 for k in 0..samples {
                     let rannum1: f64 = rand::random();
                     let rannum2: f64 = rand::random();
-                    let curv = &cur + &(&(&rowInc * rannum1) + &(&colInc * rannum2));
-                    let mut ray = ray::Ray{color: linear::Vec3::new(), origin: self.pos.copy(), traj: curv.normalize()};
+                    let curv = &cur + &(&rowInc * rannum1 + &colInc * rannum2);
+                    let mut ray = ray::Ray{origin: self.pos.copy(), traj: curv.normalize()};
 
                     fcolor = &fcolor + &ray.trace(&self.scene, &(&scene::SKY + &(&scene::WHITE * bal)), 15);
                 }
 
-                Camera::write_color(&(&fcolor * scale));
+                self.film.push(&fcolor * scale);
                 cur = &cur + &colInc;
             }
             print!("\n");

@@ -56,7 +56,7 @@ impl<T: Float> Vec3<T> {
 
     pub fn reflect(&self, v: &Self) -> Self {
         let proj = &(self | &v); 
-        &(-self) + &(proj + proj)
+        -self + (proj + proj)
     }
 
     pub fn copy(&self) -> Self {
@@ -105,7 +105,21 @@ impl<T: Float> Add for &Vec3<T> {
     }
 }
 
+impl<T: Float> Add for Vec3<T> {
+    type Output = Vec3<T>;
+    fn add(self, v: Self) -> Vec3<T> {
+        Vec3 {x: self.x + v.x, y: self.y + v.y, z: self.z + v.z}
+    }
+}
+
 impl<T: Float> Mul<T> for &Vec3<T> {
+    type Output = Vec3<T>;
+    fn mul(self, v: T) -> Vec3<T> {
+        Vec3 {x: self.x * v, y: self.y * v, z: self.z * v}
+    }
+}
+
+impl<T: Float> Mul<T> for Vec3<T> {
     type Output = Vec3<T>;
     fn mul(self, v: T) -> Vec3<T> {
         Vec3 {x: self.x * v, y: self.y * v, z: self.z * v}
@@ -126,7 +140,28 @@ impl Mul<&Vec3<f64>> for f64 {
     }
 }
 
+impl Mul<Vec3<f32>> for f32 {
+    type Output = Vec3<f32>;
+    fn mul(self, v: Vec3<f32>) -> Vec3<f32> {
+        Vec3 {x: self * v.x, y: self * v.y, z: self * v.z}
+    }
+}
+
+impl Mul<Vec3<f64>> for f64 {
+    type Output = Vec3<f64>;
+    fn mul(self, v: Vec3<f64>) -> Vec3<f64> {
+        Vec3 {x: self * v.x, y: self * v.y, z: self * v.z}
+    }
+}
+
 impl<T: Float> Mul for &Vec3<T> {
+    type Output = T;
+    fn mul(self, v: Self) -> T {
+        self.x * v.x + self.y * v.y + self.z * v.z
+    }
+}
+
+impl<T: Float> Mul for Vec3<T> {
     type Output = T;
     fn mul(self, v: Self) -> T {
         self.x * v.x + self.y * v.y + self.z * v.z
@@ -141,7 +176,23 @@ impl<T: Float> BitOr for &Vec3<T> {
     }
 }
 
+impl<T: Float> BitOr for Vec3<T> {
+    type Output = Vec3<T>;
+
+    fn bitor(self, v: Self) -> Vec3<T> {
+        &v.normalize() * ((&self * &v) / v.norm())
+    }
+}
+
 impl<T: Float> BitXor for &Vec3<T> {
+    type Output = Vec3<T>;
+
+    fn bitxor(self, v: Self) -> Vec3<T> {
+        Vec3 { x: (self.y*v.z - v.y*self.z), y: (self.z*v.x - self.x*v.z), z: (self.x*v.y - self.y*v.x) }
+    }
+}
+
+impl<T: Float> BitXor for Vec3<T> {
     type Output = Vec3<T>;
 
     fn bitxor(self, v: Self) -> Vec3<T> {
@@ -156,7 +207,22 @@ impl<T: Float> Div<T> for &Vec3<T> {
     }
 }
 
+impl<T: Float> Div<T> for Vec3<T> {
+    type Output = Vec3<T>;
+    fn div(self, v: T) -> Vec3<T> {
+        Vec3 {x: self.x * v.recip(), y: self.y * v.recip(), z: self.z * v.recip()}
+    }
+}
+
 impl<T: Float> Neg for &Vec3<T> {
+    type Output = Vec3<T>;
+
+    fn neg(self) -> Vec3<T> {
+        Vec3 {x: -self.x, y: -self.y, z: -self.z}
+    }
+}
+
+impl<T: Float> Neg for Vec3<T> {
     type Output = Vec3<T>;
 
     fn neg(self) -> Vec3<T> {
@@ -169,5 +235,13 @@ impl<T: Float> Sub for &Vec3<T> {
 
     fn sub(self, v: Self) -> Vec3<T> {
         self + &-v
+    }
+}
+
+impl<T: Float> Sub for Vec3<T> {
+    type Output = Vec3<T>;
+
+    fn sub(self, v: Self) -> Vec3<T> {
+        self + -v
     }
 }

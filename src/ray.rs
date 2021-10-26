@@ -5,7 +5,6 @@ use crate::scene::Intersection;
 pub struct Ray {
     pub origin: linear::Vec3<f64>,
     pub traj: linear::Vec3<f64>,
-    pub color: linear::Vec3<f64>, 
 }
 
 impl Ray {
@@ -27,7 +26,7 @@ impl Ray {
         
         if finter.is_some() {
             let inter = finter.unwrap();
-            self.traj = inter.mat.pdf(&self.traj, &inter.norm);
+            self.traj = inter.mat.pdf(&self.traj, &inter.norm).normalize();
             self.origin = inter.pos;
             color = inter.mat.bsdf(0.0, 0.0).color_prod(&self.trace(scene, bg, depth-1));
         }
