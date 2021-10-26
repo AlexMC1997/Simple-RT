@@ -27,12 +27,9 @@ impl Material for Lambert {
     }
 
     fn pdf(&self, incident: &linear::Vec3<f64>, norm: &linear::Vec3<f64>) -> linear::Vec3<f64> {
-        let mut vec: linear::Vec3<f64>; 
-        loop {
-            vec = linear::Vec3::<f64>::rand();
-            if vec.norm() <= 1.0 {
-                break;
-            }
+        let mut vec: linear::Vec3<f64> = linear::Vec3::<f64>::rand(); 
+        while vec.norm() > 1.0 {
+            vec = linear::Vec3::<f64>::rand(); 
         }
         norm + &vec
     }
