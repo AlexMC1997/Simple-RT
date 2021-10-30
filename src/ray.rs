@@ -26,9 +26,15 @@ impl Ray {
         
         if finter.is_some() {
             let inter = finter.unwrap();
-            self.traj = inter.mat.pdf(&self.traj, &inter.norm).normalize();
-            self.origin = inter.pos;
-            color = inter.mat.bsdf(0.0, 0.0).color_prod(&self.trace(scene, bg, depth-1));
+            self.traj = inter.mat.pdf(&self.traj, &inter.norm);
+            let tmp = self.traj.norm();
+            if tmp != 0.0 {
+                self.traj = &self.traj / tmp;
+                self.origin = inter.pos;
+                color = inter.mat.bsdf(0.0, 0.0).color_prod(&self.trace(scene, bg, depth-1));
+            } else {
+                color = inter.mat.bsdf(0.0, 0.0);
+            }
         }
 
         color

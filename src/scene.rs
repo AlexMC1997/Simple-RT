@@ -1,5 +1,4 @@
 use crate::linear;
-use crate::linear::Vec3;
 use crate::ray;
 use crate::material;
 
@@ -10,6 +9,13 @@ pub const PURPLE: linear::Vec3<f64> = linear::Vec3{x: 1.0, y: 0.0, z: 1.0};
 pub const BLUE: linear::Vec3<f64> = linear::Vec3{x: 0.0, y: 0.0, z: 1.0};
 pub const GREEN: linear::Vec3<f64> = linear::Vec3{x: 0.0, y: 1.0, z: 0.0};
 pub const SKY: linear::Vec3<f64> = linear::Vec3{x: 0.2, y: 0.4, z: 0.9};
+
+pub enum FaceAxis {
+    FaceX,
+    FaceY,
+    FaceZ,
+}
+
 pub trait SceneObject {
     fn intersect(&self, r: &ray::Ray) -> Intersection;
 }
@@ -27,8 +33,51 @@ pub struct Sphere<'a> {
     pub mat: &'a dyn material::Material,
 }
 
+pub struct Face<'a> {
+    pub h1: f64,
+    pub h2: f64,
+    pub w1: f64,
+    pub w2: f64,
+    pub d: f64,
+    pub facing: FaceAxis,
+    pub mat: &'a dyn material::Material,
+}
+
 pub struct Scene<'a> {
     pub objects: Vec<&'a dyn SceneObject>,
+}
+
+impl<'a> SceneObject for Face<'a> {
+    fn intersect(&self, r: &ray::Ray) -> Intersection {
+        let mut result = Intersection {t: -1.0, pos: linear::Vec3::new(), norm: linear::Vec3::new(), mat: self.mat};
+        result.norm = match self.facing {
+            FaceAxis::FaceX => linear::X,
+            FaceAxis::FaceY => linear::Y,
+            FaceAxis::FaceZ => linear::Z,
+        };
+        if self.d >= 0.0 {
+            result.norm = -result.norm;
+        }
+        let t = match self.facing {
+            FaceAxis::FaceX => (self.d - r.origin.x) / r.traj.x,
+            FaceAxis::FaceY => (self.d - r.origin.y) / r.traj.y,
+            FaceAxis::FaceZ => (self.d - r.origin.z) / r.traj.z,
+        };
+        let p = &r.origin + &(t * &r.traj);
+        match self.facing {
+            FaceAxis::FaceX => {
+                if self.w1 <= p.y && p.y <= self.w2 && self.h1 <= p.z && p.z <= self.h2 { result.t = t; }
+            },
+            FaceAxis::FaceY => {
+                if self.w1 <= p.z && p.z <= self.w2 && self.h1 <= p.x && p.x <= self.h2 { result.t = t; }
+            },
+            FaceAxis::FaceZ => {
+                if self.w1 <= p.x && p.x <= self.w2 && self.h1 <= p.y && p.y <= self.h2 { result.t = t; }
+            },
+        };
+        result.pos = p;
+        result
+    }
 }
 
 impl<'a> SceneObject for Sphere<'a> {
@@ -52,5 +101,11 @@ impl<'a> SceneObject for Sphere<'a> {
             result.mat = self.mat;
         }
         result
+    }
+}
+
+impl<'a> Clone for Sphere<'a> {
+    fn clone(&self) -> Self {
+        Sphere {pos: self.pos.copy(), mat: self.mat, rad: self.rad}
     }
 }

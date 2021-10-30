@@ -3,6 +3,9 @@ use std::ops::BitOr;
 use num::Float;
 use rand;
 
+pub const X: Vec3<f64> = Vec3 {x: 1.0, y: 0.0, z: 0.0};
+pub const Y: Vec3<f64> = Vec3 {x: 0.0, y: 1.0, z: 0.0};
+pub const Z: Vec3<f64> = Vec3 {x: 0.0, y: 0.0, z: 1.0};
 
 pub struct Quat<T: Float> {
     r: T,
@@ -59,6 +62,12 @@ impl<T: Float> Vec3<T> {
         -self + (proj + proj)
     }
 
+    pub fn refract(&self, norm: &Self, ratio: T) -> Self {
+        let perp = (self + &(norm * (&-self.normalize() * norm))) * ratio;
+        let para = norm * -((ratio / ratio) - (&perp * &perp)).sqrt();
+        perp + para
+    }
+
     pub fn copy(&self) -> Self {
         Vec3 {x: self.x, y: self.y, z: self.z}
     }
@@ -68,10 +77,9 @@ impl<T: Float> Vec3<T> {
     }
 
     pub fn rotate(&self, axis: &Vec3<T>, rad: T) -> Self {
-        let rot = Quat {r: rad.cos(), vec: &axis.normalize() * rad.sin()};
+        let rot = Quat {r: rad.cos(), vec: axis.normalize() * rad.sin()};
         let tmp = Quat {r: num::traits::zero(), vec: self.copy()};
         (&(&rot * &tmp) / &rot).vec
-
     } 
 
     pub fn new() -> Self {
@@ -81,19 +89,19 @@ impl<T: Float> Vec3<T> {
 }
 
 impl Vec3<f64> {
-    pub fn rand() -> Self {
-        let num1: f64 = (rand::random::<f64>() - 0.5) * 2.0;
-        let num2: f64 = (rand::random::<f64>() - 0.5) * 2.0;
-        let num3: f64 = (rand::random::<f64>() - 0.5) * 2.0;
+    pub fn rand(rad: f64) -> Self {
+        let num1: f64 = (rand::random::<f64>() - 0.5) * 2.0 * rad;
+        let num2: f64 = (rand::random::<f64>() - 0.5) * 2.0 * rad;
+        let num3: f64 = (rand::random::<f64>() - 0.5) * 2.0 * rad;
         Vec3{x: num1, y: num2, z: num3}
     }
 }
 
 impl Vec3<f32> {
-    pub fn rand() -> Self {
-        let num1: f32 = (rand::random::<f32>() - 0.5_f32) * 2.0_f32;
-        let num2: f32 = (rand::random::<f32>() - 0.5_f32) * 2.0_f32;
-        let num3: f32 = (rand::random::<f32>() - 0.5_f32) * 2.0_f32;
+    pub fn rand(rad: f32) -> Self {
+        let num1: f32 = (rand::random::<f32>() - 0.5_f32) * 2.0_f32 * rad;
+        let num2: f32 = (rand::random::<f32>() - 0.5_f32) * 2.0_f32 * rad;
+        let num3: f32 = (rand::random::<f32>() - 0.5_f32) * 2.0_f32 * rad;
         Vec3{x: num1, y: num2, z: num3}
     }
 }
@@ -243,5 +251,11 @@ impl<T: Float> Sub for Vec3<T> {
 
     fn sub(self, v: Self) -> Vec3<T> {
         self + -v
+    }
+}
+
+impl<T: Float> Clone for Vec3<T> {
+    fn clone(&self) -> Self {
+        self.copy()
     }
 }
