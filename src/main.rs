@@ -47,7 +47,7 @@ fn do_render(width: u32, height: u32, samples: u16) -> Vec<linear::Vec3<f64>> {
     let sph7 = scene::Sphere{mat: &material::WHITE_TESTING, pos: linear::Vec3{x: 6.0, y: 2.0, z: -13.0}, rad: 2.0};
     let sph8 = scene::Sphere{mat: &material::METAL_TESTING, pos: linear::Vec3{x: -5.0, y: 1.0, z: -3.0}, rad: 1.0};
     let sph9 = scene::Sphere{mat: &material::PURPLE_TESTING, pos: linear::Vec3{x: -1.0, y: 0.3, z: -2.0}, rad: 0.3};
-    let light = scene::Sphere{mat: &material::LIGHT_TESTING, pos: linear::Vec3{x: 0.0, y: 6.0, z: -6.0}, rad: 2.0};
+    let light = scene::Sphere{mat: &material::LIGHT_TESTING, pos: linear::Vec3{x: 0.0, y: 10.0, z: -6.0}, rad: 2.0};
     let earth = scene::Sphere{mat: &material::GREEN_TESTING, pos: linear::Vec3{x: 0.0, y: -800.0, z: -5.0}, rad: 800.0};
     let red_light = scene::Sphere{mat: &material::REDL_TESTING, pos: linear::Vec3{x: -4.0, y: 1.8, z: -3.2}, rad: 0.8};
     let blue_light = scene::Sphere{mat: &material::BLUEL_TESTING, pos: linear::Vec3{x: 4.0, y: 1.8, z: -3.2}, rad: 0.8};
@@ -150,11 +150,21 @@ fn main() {
     let sub = samples / 12;
     let rem = samples.rem(12);
     for i in 0..rem {
-        handles.push(thread::Builder::new().name(i.to_string()).spawn(move || { do_render(width, height, sub + 1) }).unwrap());
+        handles.push(
+            thread::Builder::new()
+            .name(i.to_string())
+            .spawn(move || { do_render(width, height, sub + 1) })
+            .unwrap()
+        );
     }
     if sub != 0 {
         for i in 0..(12 - rem) {
-            handles.push(thread::Builder::new().name((i + rem).to_string()).spawn(move || { do_render(width, height, sub) }).unwrap());
+            handles.push(
+                thread::Builder::new()
+                .name((i + rem).to_string())
+                .spawn(move || { do_render(width, height, sub) })
+                .unwrap()
+            );
         }
     }
     

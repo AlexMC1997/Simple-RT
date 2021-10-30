@@ -71,7 +71,7 @@ impl<'a> Camera<'a> {
                     }
                     let mut ray = ray::Ray{origin: origin.copy(), traj: aim.normalize()};
 
-                    fcolor = &fcolor + &ray.trace(&self.scene, &scene::BLACK, 30);
+                    fcolor = &fcolor + &ray.trace(&self.scene, &scene::BLACK, 5);
                 }
 
                 self.film.push(&fcolor * scale);

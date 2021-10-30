@@ -11,7 +11,7 @@ pub const MIRROR_TESTING: Specular = Specular { color: linear::Vec3 {x: 0.97, y:
 pub const METAL_TESTING: Specular = Specular { color: linear::Vec3 {x: 0.97, y: 0.98, z: 0.97}, roughness: 0.3 };
 pub const GOLD_TESTING: Specular = Specular { color: linear::Vec3 {x: 0.98, y: 0.7, z: 0.1}, roughness: 0.7 };
 pub const GLASS_TESTING: Dielectric = Dielectric { color: linear::Vec3 {x: 0.97, y: 0.98, z: 0.97}, eta: 1.3};
-pub const LIGHT_TESTING: Emitter = Emitter { color: linear::Vec3 {x: 16.0, y: 16.0, z: 16.0} };
+pub const LIGHT_TESTING: Emitter = Emitter { color: linear::Vec3 {x: 32.0, y: 32.0, z: 32.0} };
 pub const REDL_TESTING: Emitter = Emitter { color: linear::Vec3 {x: 16.0, y: 0.6, z: 1.6} };
 pub const BLUEL_TESTING: Emitter = Emitter { color: linear::Vec3 {x: 1.0, y: 4.4, z: 16.0} };
 
