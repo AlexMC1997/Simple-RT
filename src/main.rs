@@ -61,7 +61,7 @@ fn do_render(width: u32, height: u32, samples: u16) -> Vec<linear::Vec3<f64>> {
         look: linear::Vec3{x: 0.0, y: 0.0, z: -1.0}, 
         pos: linear::Vec3 {x: 0.0, y: 0.0, z: 0.0}, 
         ratio: 0.0, 
-        scene: scene::Scene{objects: Vec::new()},
+        scene: scene::Scene{objects: Vec::new(), lights: Vec::new()},
         up: linear::Vec3{x: 0.0, y: 1.0, z: 0.0},
         lens_rad: 0.05,
         film: Vec::new()
@@ -89,11 +89,13 @@ fn do_render(width: u32, height: u32, samples: u16) -> Vec<linear::Vec3<f64>> {
     cam.scene.objects.push(&left_face);
     cam.scene.objects.push(&floor_face);
     cam.scene.objects.push(&ceiling_face);
+    
+    cam.scene.lights.push(&light);
 
     // let mut sph_vec: Vec<scene::Sphere> = Vec::new();
     // let mut seed = oorandom::Rand64::new(915321); //915321 299323422
 
-    // for _i in 0..16 {
+    // for _i in 0..32 {
     //     let ranr: f64 = seed.rand_float() * 0.75;
     //     let rantheta: f64 = seed.rand_float() * 2.0 * PI;
     //     let randist: f64 = (seed.rand_float() + 3.0) * 2.0;

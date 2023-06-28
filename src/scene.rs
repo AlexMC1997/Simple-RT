@@ -9,6 +9,7 @@ pub const PURPLE: linear::Vec3<f64> = linear::Vec3{x: 1.0, y: 0.0, z: 1.0};
 pub const BLUE: linear::Vec3<f64> = linear::Vec3{x: 0.0, y: 0.0, z: 1.0};
 pub const GREEN: linear::Vec3<f64> = linear::Vec3{x: 0.0, y: 1.0, z: 0.0};
 pub const SKY: linear::Vec3<f64> = linear::Vec3{x: 0.2, y: 0.4, z: 0.9};
+pub const SKY_DARK: linear::Vec3<f64> = linear::Vec3{x: 0.1, y: 0.1, z: 0.1};
 
 pub enum FaceAxis {
     FaceX,
@@ -19,6 +20,12 @@ pub enum FaceAxis {
 pub trait SceneObject {
     fn intersect(&self, r: &ray::Ray) -> Intersection;
 }
+
+pub trait LightSource {
+    fn sample(&self, from: linear::Vec3<f64>) -> linear::Vec3<f64>;
+}
+
+pub trait LightObject: SceneObject + LightSource {}
 
 pub struct Intersection<'a> {
     pub t: f64,
@@ -45,6 +52,7 @@ pub struct Face<'a> {
 
 pub struct Scene<'a> {
     pub objects: Vec<&'a dyn SceneObject>,
+    pub lights: Vec<&'a dyn LightObject>,
 }
 
 impl<'a> SceneObject for Face<'a> {
@@ -104,8 +112,20 @@ impl<'a> SceneObject for Sphere<'a> {
     }
 }
 
+impl<'a> LightSource for Sphere<'a> {
+    fn sample(&self, from: linear::Vec3<f64>) -> linear::Vec3<f64> {
+        let mut vec = linear::Vec3::<f64>::rand(self.rad);
+        while vec.norm() > self.rad {
+            vec = linear::Vec3::<f64>::rand(self.rad);
+        }
+        &self.pos - &from + vec 
+    }
+}
+
 impl<'a> Clone for Sphere<'a> {
     fn clone(&self) -> Self {
         Sphere {pos: self.pos.copy(), mat: self.mat, rad: self.rad}
     }
 }
+
+impl<'a> LightObject for Sphere<'a> {}

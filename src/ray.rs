@@ -26,14 +26,43 @@ impl Ray {
         
         if finter.is_some() {
             let inter = finter.unwrap();
-            self.traj = inter.mat.pdf(&self.traj, &inter.norm);
+            let ncos = &-&self.traj * &inter.norm;
+            let mut lcolor: linear::Vec3<f64> = linear::Vec3::new();
+            for light in &scene.lights {
+                let mut hit = true;
+                let sray = Ray {
+                    origin: inter.pos.copy(),
+                    traj: light.sample(inter.pos.copy()).normalize()
+                };
+                let lscale = inter.mat.pdf(&sray.traj, &inter.norm);
+                if lscale <= 0.001 {
+                    continue;
+                }
+                let lcos = &sray.traj * &inter.norm;
+                if lcos < 0.0 {
+                    continue;
+                }
+                let linter = light.intersect(&sray);
+                for obj in &scene.objects {
+                    let sinter = obj.intersect(&sray);
+                    if sinter.t >= 0.001 && sinter.t < linter.t && &sray.traj * &sinter.norm <= 0.0 {
+                        hit = false;
+                        break;
+                    }
+                }
+                if hit {
+                    lcolor = lcolor + (lcos * lscale * linter.mat.bsdf(1.0, 0.0));
+                }
+            }
+            color = inter.mat.bsdf(0.0, 0.0,).color_prod(&lcolor);
+            self.traj = inter.mat.sample(&self.traj, &inter.norm);
             let tmp = self.traj.norm();
             if tmp != 0.0 {
                 self.traj = &self.traj / tmp;
                 self.origin = inter.pos;
-                color = inter.mat.bsdf(0.0, 0.0).color_prod(&self.trace(scene, bg, depth-1));
+                color = color + inter.mat.bsdf(0.0, 0.0).color_prod(&self.trace(scene, bg, depth-1));
             } else {
-                color = inter.mat.bsdf(0.0, 0.0);
+                color = color + inter.mat.bsdf(0.0, 0.0);
             }
         }
 
